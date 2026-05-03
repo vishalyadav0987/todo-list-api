@@ -12,7 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vishalyadav0987/todo-list-api/internal/config"
-	"github.com/vishalyadav0987/todo-list-api/internal/infrastructure/db/sqlite"
+	"github.com/vishalyadav0987/todo-list-api/internal/infrastructure/persistence/sqlite"
 )
 
 func main() {

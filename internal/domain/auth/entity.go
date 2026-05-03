@@ -13,18 +13,16 @@ type User struct {
 
 func NewUser(
 	id string,
-	name string,
-	email string,
+	name Name,
+	email Email,
 	passwordHash string,
-	createdAt time.Time,
-	updatedAt time.Time,
 ) *User {
 
 	now := time.Now()
 	return &User{
 		id:           id,
-		name:         name,
-		email:        email,
+		name:         string(name),
+		email:        string(email),
 		passwordHash: passwordHash,
 		createdAt:    now,
 		updatedAt:    now,
@@ -36,12 +34,12 @@ func (u *User) ID() string {
 	return u.id
 }
 
-func (u *User) Name() string {
-	return u.name
+func (u *User) Name() Name {
+	return Name(u.name)
 }
 
-func (u *User) Email() string {
-	return u.email
+func (u *User) Email() Email {
+	return Email(u.email)
 }
 
 func (u *User) ChangePassword(newHash string) {
