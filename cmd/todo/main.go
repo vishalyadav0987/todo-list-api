@@ -11,8 +11,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	httpapp "github.com/vishalyadav0987/todo-list-api/interfaces/http"
+	"github.com/vishalyadav0987/todo-list-api/interfaces/http/handler"
+	authapp "github.com/vishalyadav0987/todo-list-api/internal/application/auth"
 	"github.com/vishalyadav0987/todo-list-api/internal/config"
+	"github.com/vishalyadav0987/todo-list-api/internal/infrastructure/hasher"
+	"github.com/vishalyadav0987/todo-list-api/internal/infrastructure/id"
 	"github.com/vishalyadav0987/todo-list-api/internal/infrastructure/persistence/sqlite"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func main() {
@@ -23,7 +29,18 @@ func main() {
 	db := sqlite.NewConnection(cfg.DBPath)
 	defer db.Close()
 
-	router := gin.New()
+	// Skip migration till now
+	// 0.8 migration
+	// sqlite.RunMigration(db, cfg.DBPath)
+
+	// router := gin.New()
+	userRepo := sqlite.NewUserRepository(db)
+	hasher := hasher.NewBcryptHasher(bcrypt.DefaultCost)
+	idGen := id.NewUUIDGenerator()
+	registerUc := authapp.NewRegisterUsecase(userRepo, hasher, idGen)
+
+	authHandler := handler.NewAuthHnadler(registerUc)
+	router := httpapp.SetUpRouter(authHandler)
 
 	router.Use(gin.Logger(), gin.Recovery())
 
@@ -37,7 +54,8 @@ func main() {
 
 	// 2. Starting Server
 	server := &http.Server{
-		Addr: ":" + cfg.AppPort,
+		Addr:    ":" + cfg.AppPort,
+		Handler: router,
 	}
 
 	// 3. Run server in goroutine
